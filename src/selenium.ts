@@ -1,0 +1,46 @@
+import { Browser, Builder, By, WebDriver } from 'selenium-webdriver';
+import * as chrome from 'selenium-webdriver/chrome';
+
+const HEADLESS = process.argv.findIndex((e) => e == '--headless') != -1;
+
+export class SeleniumDriver {
+  private _driver: WebDriver;
+  private _is_headless: boolean = HEADLESS;
+  constructor(driver: WebDriver) {
+    this._driver = driver;
+  }
+  static async New() {
+    const opts = new chrome.Options();
+    opts.addArguments('--no-sandbox');
+    opts.addArguments('--incognito');
+    opts.addArguments('--disable-popup-blocking');
+    opts.addArguments('--disable-default-apps');
+    opts.addArguments('--disable-infobars');
+    opts.addArguments('--disable-extensions');
+    opts.addArguments('--disable-dev-shm-usage');
+    opts.addArguments('--window-size=1920,1080');
+    if (HEADLESS) {
+      opts.addArguments('--headless');
+    }
+    let driver = await new Builder().forBrowser(Browser.CHROME).setChromeOptions(opts).build();
+    return new SeleniumDriver(driver);
+  }
+  Driver() {
+    return this._driver;
+  }
+  IsHeadless() {
+    return this._is_headless;
+  }
+  async GetElementByXPath(xpath: string) {
+    return await this._driver.findElement(By.xpath(xpath));
+  }
+  async GetElementByText(text: string) {
+    return await this._driver.findElement(By.xpath(`//*[text()='${text}']`));
+  }
+  async GetElementByCss(css: string) {
+    return await this._driver.findElement(By.css(css));
+  }
+  async Quit() {
+    await this._driver.quit();
+  }
+}

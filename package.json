@@ -1,0 +1,28 @@
+{
+  "name": "sepl",
+  "version": "0.0.1",
+  "main": ".out/main.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "keywords": [],
+  "author": "Le Dao Cong Bao <cbstorm.dev@gmail.com>, <bao.ledaocong@gmail.com>",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@jest/globals": "^29.7.0",
+    "@types/jest": "^29.5.13",
+    "@types/node": "^22.7.6",
+    "@types/selenium-webdriver": "^4.1.26",
+    "ts-jest": "^29.2.5",
+    "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "selenium-webdriver": "^4.25.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cbstorm/sepl.git"
+  }
+}
