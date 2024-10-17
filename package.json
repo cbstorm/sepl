@@ -6,7 +6,9 @@
     "build": "tsc",
     "test": "jest"
   },
-  "keywords": [],
+  "keywords": [
+    "sepl"
+  ],
   "author": "Le Dao Cong Bao <cbstorm.dev@gmail.com>, <bao.ledaocong@gmail.com>",
   "license": "ISC",
   "description": "",
