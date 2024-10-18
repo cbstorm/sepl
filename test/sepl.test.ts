@@ -1,3 +1,4 @@
+process.argv.push('--headless');
 import { EStatementAction, EStatementValueType, SEPL } from '../src/sepl';
 
 describe('SEPL test', () => {
@@ -209,4 +210,27 @@ describe('SEPL test', () => {
       },
     });
   });
+
+  it(
+    '[SUCCESS]logs statement',
+    async () => {
+      const p = `
+      DECLARE
+        logs;
+      END
+      BEGIN
+        GOTO "https://www.youtube.com/watch?v=JIxSON5l9Ec/";
+        WAIT 5s;
+        CLICK xpath::"/html/body/ytd-app/div[1]/ytd-page-manager/ytd-watch-flexy/div[5]/div[1]/div/div[2]/ytd-watch-metadata/div/div[4]/div[1]";
+        WAIT 3s;
+        GET_LOGS INTO $logs;
+      END
+    `;
+      const sepl = new SEPL(p);
+      sepl.Compile();
+      expect(sepl.ProcedureStatements()[4]).toMatchObject({ action: EStatementAction.GET_LOGS, destination: 'logs' });
+      expect(sepl.Variables()['logs']).toEqual('');
+    },
+    60 * 1000
+  );
 });

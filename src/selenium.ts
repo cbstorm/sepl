@@ -1,5 +1,6 @@
 import { Browser, Builder, By, WebDriver } from 'selenium-webdriver';
 import * as chrome from 'selenium-webdriver/chrome';
+import { Level, Preferences, Type } from 'selenium-webdriver/lib/logging';
 
 const HEADLESS = process.argv.findIndex((e) => e == '--headless') != -1;
 
@@ -22,7 +23,9 @@ export class SeleniumDriver {
     if (HEADLESS) {
       opts.addArguments('--headless');
     }
-    let driver = await new Builder().forBrowser(Browser.CHROME).setChromeOptions(opts).build();
+    const pref = new Preferences();
+    pref.setLevel(Type.BROWSER, Level.ALL);
+    let driver = await new Builder().forBrowser(Browser.CHROME).setChromeOptions(opts).setLoggingPrefs(pref).build();
     return new SeleniumDriver(driver);
   }
   Driver() {
@@ -39,6 +42,9 @@ export class SeleniumDriver {
   }
   async GetElementByCss(css: string) {
     return await this._driver.findElement(By.css(css));
+  }
+  async GetLogs() {
+    return await this._driver.executeScript('return window.performance.getEntries();');
   }
   async Quit() {
     await this._driver.quit();

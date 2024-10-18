@@ -52,6 +52,7 @@ export enum EStatementAction {
   SEND_KEYS = 'SEND_KEYS',
   GET_TEXT = 'GET_TEXT',
   GET_HTML = 'GET_HTML',
+  GET_LOGS = 'GET_LOGS',
   WAIT = 'WAIT',
 }
 
@@ -122,11 +123,11 @@ export class WithValueStatement {
 }
 
 export class WithDestinationStatement {
-  protected _validateDst(line: string[], vars: IVars) {
-    if (line[2] != Keyword.INTO) {
+  protected _validateDst(line: string[], into_keyword_idx: number, dst_idx: number, vars: IVars) {
+    if (line[into_keyword_idx] != Keyword.INTO) {
       throw new Error("the statement has been missing 'INTO' keyword");
     }
-    let dst = line[3];
+    let dst = line[dst_idx];
     if (!dst) {
       throw new Error('the statement has been missing the destination to store value"');
     }
@@ -289,7 +290,7 @@ export class GetTextStatement
   constructor(line: string[], vars: IVars) {
     super();
     this.location = new StatementLocation(line[1]);
-    const dst = this._validateDst(line, vars);
+    const dst = this._validateDst(line, 2, 3, vars);
     this.destination = dst;
     this.vars = vars;
   }
@@ -311,7 +312,7 @@ export class GetHTMLStatement
   constructor(line: string[], vars: IVars) {
     super();
     this.location = new StatementLocation(line[1]);
-    const dst = this._validateDst(line, vars);
+    const dst = this._validateDst(line, 2, 3, vars);
     this.destination = dst;
     this.vars = vars;
   }
@@ -319,6 +320,21 @@ export class GetHTMLStatement
     const el = await this.location.SelectElement(sdriver);
     const html = await el.getAttribute('innerHTML');
     this.vars[this.destination] = html;
+  }
+}
+
+export class GetLogsStatement extends WithDestinationStatement {
+  action: EStatementAction = EStatementAction.GET_LOGS;
+  destination: string;
+  vars: IVars;
+  constructor(line: string[], vars: IVars) {
+    super();
+    this.destination = this._validateDst(line, 1, 2, vars);
+    this.vars = vars;
+  }
+  async Do(sdriver: SeleniumDriver) {
+    const logs = await sdriver.GetLogs();
+    this.vars[this.destination] = JSON.stringify(logs);
   }
 }
 
@@ -477,15 +493,24 @@ export class SEPL {
         case EStatementAction.WAIT:
           procedures.push(new WaitStatement(l));
           break;
+        case EStatementAction.GET_LOGS:
+          procedures.push(new GetLogsStatement(l, this._variables));
+          break;
       }
     }
+    this._nomalized_lines = [];
   }
   static async Execute(statements: IStatement[], otps: { close?: boolean } = { close: true }) {
     let sdriver!: SeleniumDriver;
     try {
       sdriver = await SeleniumDriver.New();
       for (const s of statements) {
-        await s.Do(sdriver);
+        try {
+          await s.Do(sdriver);
+        } catch (error) {
+          console.log(s.action, error);
+          throw error;
+        }
       }
     } catch (error) {
       console.log('Execute error: ', error);
