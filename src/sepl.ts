@@ -4,6 +4,10 @@ import { SeleniumDriver } from './selenium';
 const ASSIGN_OP = ':=';
 const VAR_OP = '$';
 
+const CHAR_MAPPING = {
+  "''": `"`,
+};
+
 function IndicesOf(str: string, p: string) {
   const indices: number[] = [];
   str.split('').forEach((c, idx) => {
@@ -441,7 +445,7 @@ export class SEPL {
       .forEach((e) => {
         const t = e.split(ASSIGN_OP);
         const is_initial_with_val = t.length > 1;
-        let x, y;
+        let x: string, y: string;
         if (is_initial_with_val) {
           x = t.splice(0, 1).join('');
           y = t.join(ASSIGN_OP).trim();
@@ -451,6 +455,9 @@ export class SEPL {
           y = UnwrapDoubleQuote(y);
           if (!y) {
             throw new Error('initial value cannot empty');
+          }
+          for (const [m, c] of Object.entries(CHAR_MAPPING)) {
+            y = y.replaceAll(m, c);
           }
         } else {
           x = t[0];
