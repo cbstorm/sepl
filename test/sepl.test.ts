@@ -233,4 +233,18 @@ describe('SEPL test', () => {
     },
     60 * 1000
   );
+  it('[SUCCESS]Screenshot', async () => {
+    const p = `
+      DECLARE
+        img_0;
+      END
+      BEGIN
+        GOTO "https://www.saucedemo.com/";
+        SCREENSHOT INTO $img_0;
+      END
+    `;
+    const sepl = new SEPL(p);
+    sepl.Compile();
+    expect(sepl.ProcedureStatements()[1]).toMatchObject({ action: EStatementAction.SCREENSHOT, destination: 'img_0' });
+  });
 });

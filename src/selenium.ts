@@ -1,3 +1,4 @@
+import * as fs from 'fs';
 import { Browser, Builder, By, WebDriver } from 'selenium-webdriver';
 import * as chrome from 'selenium-webdriver/chrome';
 import { Level, Preferences, Type } from 'selenium-webdriver/lib/logging';
@@ -45,6 +46,20 @@ export class SeleniumDriver {
   }
   async GetLogs() {
     return await this._driver.executeScript('return window.performance.getEntries();');
+  }
+  async TakeScreenshot() {
+    return await this._driver.takeScreenshot();
+  }
+  async SaveScreenshot(path: string) {
+    const base64_img = await this.TakeScreenshot();
+    return new Promise((resolve, reject) => {
+      return fs.writeFile(path, base64_img, { encoding: 'base64' }, (err) => {
+        if (err) {
+          return reject(err);
+        }
+        return resolve(path);
+      });
+    });
   }
   async Quit() {
     await this._driver.quit();

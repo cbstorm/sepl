@@ -54,6 +54,8 @@ export enum EStatementAction {
   GET_HTML = 'GET_HTML',
   GET_LOGS = 'GET_LOGS',
   WAIT = 'WAIT',
+  SCREENSHOT = 'SCREENSHOT',
+  KEYDOWN = 'KEYDOWN',
 }
 
 export enum EStatementLocationType {
@@ -323,7 +325,7 @@ export class GetHTMLStatement
   }
 }
 
-export class GetLogsStatement extends WithDestinationStatement {
+export class GetLogsStatement extends WithDestinationStatement implements IHasDestinationStatement {
   action: EStatementAction = EStatementAction.GET_LOGS;
   destination: string;
   vars: IVars;
@@ -335,6 +337,21 @@ export class GetLogsStatement extends WithDestinationStatement {
   async Do(sdriver: SeleniumDriver) {
     const logs = await sdriver.GetLogs();
     this.vars[this.destination] = JSON.stringify(logs);
+  }
+}
+
+export class ScreenshotStatement extends WithDestinationStatement implements IHasDestinationStatement {
+  action: EStatementAction = EStatementAction.SCREENSHOT;
+  destination: string;
+  vars: IVars;
+  constructor(line: string[], vars: IVars) {
+    super();
+    this.destination = this._validateDst(line, 1, 2, vars);
+    this.vars = vars;
+  }
+  async Do(sdriver: SeleniumDriver) {
+    const img = await sdriver.TakeScreenshot();
+    this.vars[this.destination] = img;
   }
 }
 
@@ -495,6 +512,9 @@ export class SEPL {
           break;
         case EStatementAction.GET_LOGS:
           procedures.push(new GetLogsStatement(l, this._variables));
+          break;
+        case EStatementAction.SCREENSHOT:
+          procedures.push(new ScreenshotStatement(l, this._variables));
           break;
       }
     }
