@@ -1,4 +1,4 @@
-import { WebElement } from 'selenium-webdriver';
+import { Key, WebElement } from 'selenium-webdriver';
 import { SeleniumDriver } from './selenium';
 
 const ASSIGN_OP = ':=';
@@ -55,7 +55,7 @@ export enum EStatementAction {
   GET_LOGS = 'GET_LOGS',
   WAIT = 'WAIT',
   SCREENSHOT = 'SCREENSHOT',
-  KEYDOWN = 'KEYDOWN',
+  PRESS = 'PRESS',
 }
 
 export enum EStatementLocationType {
@@ -352,6 +352,23 @@ export class ScreenshotStatement extends WithDestinationStatement implements IHa
   async Do(sdriver: SeleniumDriver) {
     const img = await sdriver.TakeScreenshot();
     this.vars[this.destination] = img;
+  }
+}
+
+export class PressStatement implements IStatement, IHasLocationStatement {
+  action: EStatementAction = EStatementAction.PRESS;
+  val: string;
+  location: IStatementLocation;
+  constructor(line: string[]) {
+    this.location = new StatementLocation(line[1]);
+    this.val = line[2];
+    if ((Key as any)[this.val as string]) {
+      throw new Error(`key ${this.val} invalid`);
+    }
+  }
+  async Do(sdriver: SeleniumDriver) {
+    const el = await this.location.SelectElement(sdriver);
+    await el.sendKeys((Key as any)[this.val]);
   }
 }
 
