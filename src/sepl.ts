@@ -366,7 +366,7 @@ export class PressStatement implements IStatement, IHasLocationStatement {
   constructor(line: string[]) {
     this.location = new StatementLocation(line[1]);
     this.val = line[2];
-    if ((Key as any)[this.val as string]) {
+    if (!(Key as any)[this.val as string]) {
       throw new Error(`key ${this.val} invalid`);
     }
   }
@@ -539,6 +539,9 @@ export class SEPL {
           break;
         case EStatementAction.SCREENSHOT:
           procedures.push(new ScreenshotStatement(l, this._variables));
+          break;
+        case EStatementAction.PRESS:
+          procedures.push(new PressStatement(l));
           break;
       }
     }

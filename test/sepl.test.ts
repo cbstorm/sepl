@@ -247,4 +247,29 @@ describe('SEPL test', () => {
     sepl.Compile();
     expect(sepl.ProcedureStatements()[1]).toMatchObject({ action: EStatementAction.SCREENSHOT, destination: 'img_0' });
   });
+  it('[SUCCESS]Press', () => {
+    const p = `
+      BEGIN
+        GOTO "https://www.saucedemo.com/";
+        PRESS css::"#password" ENTER;
+      END
+    `;
+    const sepl = new SEPL(p);
+    sepl.Compile();
+    expect(sepl.ProcedureStatements()[1]).toMatchObject({
+      action: 'PRESS',
+      location: { type: 'css', value: '#password' },
+      val: 'ENTER',
+    });
+  });
+  it('[FAIL]Key press invalid', () => {
+    const p = `
+      BEGIN
+        GOTO "https://www.saucedemo.com/";
+        PRESS css::"#password" SHIP;
+      END
+    `;
+    const sepl = new SEPL(p);
+    expect(() => sepl.Compile()).toThrow();
+  });
 });

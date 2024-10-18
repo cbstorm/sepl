@@ -57,11 +57,30 @@ describe('Selenium Test', () => {
         GOTO "https://www.saucedemo.com/";
         SEND_KEYS css::"#user-name" $username;
         SEND_KEYS css::"#password" $password;
+        SCREENSHOT INTO $img_0;
       END
     `;
     const sepl = new SEPL(p);
     sepl.Compile();
     sepl.ProcedureStatements();
+    await SEPL.Execute(sepl.ProcedureStatements());
+  });
+  it('[SUCESS]Press', async () => {
+    const p = `
+      DECLARE
+        img_0;
+        username := "standard_user";
+        password := "secret_sauce";
+      END
+      BEGIN
+        GOTO "https://www.saucedemo.com/";
+        SEND_KEYS css::"#user-name" $username;
+        SEND_KEYS css::"#password" $password;
+        PRESS css::"#password" ENTER;
+      END
+    `;
+    const sepl = new SEPL(p);
+    sepl.Compile();
     await SEPL.Execute(sepl.ProcedureStatements());
   });
 });
