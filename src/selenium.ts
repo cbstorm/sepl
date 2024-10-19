@@ -22,7 +22,7 @@ export class SeleniumDriver {
     opts.addArguments('--disable-dev-shm-usage');
     opts.addArguments('--window-size=1920,1080');
     if (HEADLESS) {
-      opts.addArguments('--headless');
+      opts.addArguments('--headless=chrome');
     }
     const pref = new Preferences();
     pref.setLevel(Type.BROWSER, Level.ALL);
